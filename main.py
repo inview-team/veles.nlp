@@ -26,11 +26,11 @@ EXAMPLES_FILE_PATH = os.getenv('EXAMPLES_FILE_PATH')
 
 navec_model_tar = "navec_hudlit_v1_12B_500K_300d_100q.tar"
 response = requests.get("https://storage.yandexcloud.net/natasha-navec/packs/navec_hudlit_v1_12B_500K_300d_100q.tar", stream=True)
-with navec_model_tar.open("wb") as f:
-    for data in tqdm(response.iter_content(chunk_size=4*1024*1024), total=13):
+with open(navec_model_tar, "wb") as f:
+    for data in tqdm.tqdm(response.iter_content(chunk_size=4*1024*1024), total=13):
         f.write(data)
 
-navec = navec.load(navec_model_tar)
+navec_model = navec.Navec.load(navec_model_tar)
 
 stanza.download('ru')
 nlp = stanza.Pipeline('ru')
