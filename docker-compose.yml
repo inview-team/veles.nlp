@@ -1,0 +1,122 @@
+version: '3.8'
+
+services:
+  veles_nlp:
+    image: inviewteam/veles.nlp:latest
+    environment:
+      - MONGO_URI=mongodb://mongo:27017
+      - DATABASE_NAME=assistant
+      - COLLECTION_NAME=scenario
+      - MONGO_USERNAME=root
+      - MONGO_PASSWORD=password
+      - NAVEC_MODEL_PATH=/app/models/navec_hudlit_v1_12B_500K_300d_100q
+      - EXAMPLES_FILE_PATH=/app/examples.json
+    depends_on:
+      - mongo
+    ports:
+      - "50052:50052"
+    networks:
+      - veles_network
+
+  veles_assistant:
+    image: inviewteam/veles.assistant:latest
+    environment:
+      - REDIS_ADDR=redis:6379
+      - REDIS_PASSWORD=rootix
+      - REDIS_DB=0
+      - MATCH_SERVICE_GRPC_ADDRESS=veles_nlp:50052
+      - MONGO_IP=mongo
+      - MONGO_PORT=27017
+      - MONGO_USER=root
+      - MONGO_PASSWORD=password
+      - MONGO_AUTH_SOURCE=admin
+    depends_on:
+      - mongo
+      - redis
+      - veles_nlp
+    ports:
+      - "30002:30002"
+      - "30003:30003"
+    networks:
+      - veles_network
+
+  mongo:
+    image: mongo:4.4
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=root
+      - MONGO_INITDB_ROOT_PASSWORD=password
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - veles_network
+
+  redis:
+    image: redis:6.2
+    command: redis-server --requirepass rootix
+    ports:
+      - "6379:6379"
+    networks:
+      - veles_network
+
+  bank:
+    container_name: bank
+    image: inviewteam/bank:latest
+    restart: always
+    environment:
+      - DEBUG=true
+      - DB__PROVIDER=postgresql+psycopg_async
+      - DB__HOST=postgres
+      - DB__PORT=5432
+      - DB__USER=postgres
+      - DB__PASSWORD=12345678
+      - DB__NAME=mts-postgresql
+      - secret=69c45e4bac22f4b45a727a84021ccfba38e6a1e40987014eb9b306ae7e245bc8
+      - algorithm=HS256
+      - access_exp=1000
+      - refresh_exp=1200
+    depends_on:
+      - postgres
+    ports:
+      - "30004:30004"
+    networks:
+      - veles_network
+
+  postgres:
+    container_name: mts-tth-postgres
+    image: postgres:latest
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: "mts-postgresql"
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "12345678"
+    volumes:
+      - ./postgres-data:/var/lib/postgresql
+    ports:
+      - "5432:5432"
+    networks:
+      - veles_network
+
+  speech_to_text:
+    image: inviewteam/sst:cpu
+    container_name: sst
+    restart: always
+    ports:
+      - "30001:30001"
+    environment:
+      ASSISTANT_HOST: http://veles_assistant
+      ASSISTANT_PORT: 30002
+      SERVICE_MODE: cpu
+    volumes:
+      - ../cache:/app/cache
+    networks:
+      - veles_network
+
+volumes:
+  mongo-data:
+  postgres-data:
+
+networks:
+  veles_network:
+    driver: bridge

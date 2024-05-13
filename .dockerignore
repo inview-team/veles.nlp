@@ -1,0 +1,6 @@
+venv
+__pycache__
+README.md
+Makefile
+docker-compose.yml
+Dockerfile

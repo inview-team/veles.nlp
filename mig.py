@@ -38,7 +38,7 @@ actions = [
         },
         "output": ["balance"],
         "additional_params": {
-            "url": "http://25.67.190.241:30004/api/v1/wallet",
+            "url": "http://bank:30004/api/v1/wallet",
             "method": "GET"
         }
     },
@@ -62,7 +62,7 @@ actions = [
         },
         "output": [],
         "additional_params": {
-            "url": "http://25.67.190.241:30004/api/v1/transfer",
+            "url": "http://bank:30004/api/v1/transfer",
             "method": "POST"
         }
     }
@@ -155,7 +155,7 @@ scenarios = [
         },
         "output": ["balance"],
         "additional_params": {
-            "url": "http://192.168.0.143:30002/api/v1/wallet",
+            "url": "http://bank:30004/api/v1/wallet",
             "method": "GET"
         }
     },
@@ -185,7 +185,7 @@ scenarios = [
         },
         "output": [],
         "additional_params": {
-            "url": "http://192.168.0.143:30002/api/v1/transfer",
+            "url": "http://bank:30004/api/v1/transfer",
             "method": "POST"
         }
     }

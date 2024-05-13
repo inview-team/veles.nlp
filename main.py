@@ -125,7 +125,7 @@ class NLPServiceServicer(nlp_pb2_grpc.NLPServiceServicer):
 def serve():
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
     nlp_pb2_grpc.add_NLPServiceServicer_to_server(NLPServiceServicer(), server)
-    server.add_insecure_port('[::]:50051')
+    server.add_insecure_port('[::]:50052')
     server.start()
     server.wait_for_termination()
 
